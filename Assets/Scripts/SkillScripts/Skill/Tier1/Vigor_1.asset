@@ -14,8 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   skillName: Vigor I
   description: Increases Stamina regeneration rate by 5 points per second
-  icon: {fileID: 21300000, guid: e446043bbf6f6684ab0b6684a42e83ca, type: 3}
-  cost: 0
+  unlockedIcon: {fileID: 21300000, guid: b8e886443f2575b47b39ab3e492ff3d9, type: 3}
+  lockedIcon: {fileID: 21300000, guid: b8e886443f2575b47b39ab3e492ff3d9, type: 3}
+  cost: 1
   requiredSkills: []
   statToUpgrade: 2
   upgradeValue: 5

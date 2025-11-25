@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   skillName: Endurance I
   description: Increases maximum Stamina by 15 points
-  icon: {fileID: 21300000, guid: e8ad35f4f500de94b8b2a839c3270290, type: 3}
+  unlockedIcon: {fileID: 21300000, guid: 31aa6610c7f43e64da583746cf85a0fe, type: 3}
+  lockedIcon: {fileID: 21300000, guid: 31aa6610c7f43e64da583746cf85a0fe, type: 3}
   cost: 1
   requiredSkills: []
   statToUpgrade: 1

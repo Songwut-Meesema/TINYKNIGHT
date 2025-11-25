@@ -6,25 +6,31 @@ public class PlayerGroundedState : IPlayerState
 {
     private readonly PlayerController _playerController;
 
+    // --- [อัปเกรด] ---
+    // Cache ค่า Stamina cost ไว้ใน Constructor เพื่อประสิทธิภาพที่ดีขึ้น
+    // จะได้ไม่ต้องไปดึงค่าจาก ScriptableObject ทุกครั้งที่กดปุ่ม
+    private readonly float _lightAttackStaminaCost;
+    private readonly float _heavyAttackStaminaCost;
+    private readonly float _dodgeStaminaCost;
+
     public PlayerGroundedState(PlayerController playerController)
     {
         _playerController = playerController;
+        // ดึงค่ามาเก็บไว้ที่นี่แค่ครั้งเดียว
+        _lightAttackStaminaCost = playerController.PlayerStatus.baseStats.lightAttackStaminaCost;
+        _heavyAttackStaminaCost = playerController.PlayerStatus.baseStats.heavyAttackStaminaCost;
+        _dodgeStaminaCost = playerController.PlayerStatus.baseStats.dodgeStaminaCost;
     }
 
     public void Enter() { }
 
     public void Update()
     {
-        Vector2 moveInput = _playerController.MoveInput;
-        if (moveInput.sqrMagnitude > 0.01f)
-        {
-            _playerController.MoveCharacter();
-            _playerController.GetAnimator().SetFloat(_playerController.SpeedHash, moveInput.magnitude);
-        }
-        else
-        {
-            _playerController.GetAnimator().SetFloat(_playerController.SpeedHash, 0f);
-        }
+        // --- [อัปเกรด] ---
+        // ใช้โค้ดการเคลื่อนไหวและการอัปเดต Animator ที่มีการหน่วง (smoothing)
+        // เพื่อให้การเปลี่ยนจากท่าหยุดเป็นท่าเดินดูนุ่มนวลขึ้น
+        _playerController.MoveCharacter();
+        _playerController.GetAnimator().SetFloat(_playerController.SpeedHash, _playerController.MoveInput.magnitude, 0.1f, Time.deltaTime);
     }
 
     public void Exit()
@@ -39,47 +45,42 @@ public class PlayerGroundedState : IPlayerState
 
     public void OnDash()
     {
-        // --- [อัปเกรด] ---
-        // ดึงค่า Stamina ที่ต้องใช้มาจาก ScriptableObject
-        float staminaCost = _playerController.PlayerStatus.baseStats.dodgeStaminaCost;
-        // ตรวจสอบว่ามี Stamina เพียงพอหรือไม่
-        if (_playerController.PlayerStatus.HasEnoughStamina(staminaCost))
+        if (_playerController.PlayerStatus.HasEnoughStamina(_dodgeStaminaCost))
         {
             _playerController.SwitchState(_playerController.DodgeState);
         }
         else
         {
-            Debug.Log("Not enough stamina to dodge!");
+            // --- [THE FIX] ---
+            _playerController.PlayerStatus.PlayNoStaminaSound();
         }
     }
 
     public void OnLightAttack()
     {
-        // --- [อัปเกรด] ---
-        float staminaCost = _playerController.PlayerStatus.baseStats.lightAttackStaminaCost;
-        if (_playerController.PlayerStatus.HasEnoughStamina(staminaCost))
+        if (_playerController.PlayerStatus.HasEnoughStamina(_lightAttackStaminaCost))
         {
             _playerController.AttackState.SetAttackType(false, 0.7f, 0.8f);
             _playerController.SwitchState(_playerController.AttackState);
         }
         else
         {
-            Debug.Log("Not enough stamina for light attack!");
+            // --- [THE FIX] ---
+            _playerController.PlayerStatus.PlayNoStaminaSound();
         }
     }
 
     public void OnHeavyAttack()
     {
-        // --- [อัปเกรด] ---
-        float staminaCost = _playerController.PlayerStatus.baseStats.heavyAttackStaminaCost;
-        if (_playerController.PlayerStatus.HasEnoughStamina(staminaCost))
+        if (_playerController.PlayerStatus.HasEnoughStamina(_heavyAttackStaminaCost))
         {
             _playerController.AttackState.SetAttackType(true, 0.7f, 0.8f);
             _playerController.SwitchState(_playerController.AttackState);
         }
         else
         {
-            Debug.Log("Not enough stamina for heavy attack!");
+            // --- [THE FIX] ---
+            _playerController.PlayerStatus.PlayNoStaminaSound();
         }
     }
 }

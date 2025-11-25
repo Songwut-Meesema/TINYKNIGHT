@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e98b3b1a7f9792d4a822e6e12651cb54, type: 3}
+  m_Name: Toughness_3
+  m_EditorClassIdentifier: 
+  skillName: Toughness IIi
+  description: Further increases maximum Health by 10 points
+  unlockedIcon: {fileID: 21300000, guid: 727f04376c6008c43a57730c16844508, type: 3}
+  lockedIcon: {fileID: 21300000, guid: 727f04376c6008c43a57730c16844508, type: 3}
+  cost: 1
+  requiredSkills:
+  - {fileID: 11400000, guid: 494009cf54bc7ae45a1b938ae0ba05c8, type: 2}
+  statToUpgrade: 0
+  upgradeValue: 10

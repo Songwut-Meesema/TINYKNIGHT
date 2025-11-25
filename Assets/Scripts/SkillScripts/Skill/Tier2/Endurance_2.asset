@@ -13,10 +13,11 @@ MonoBehaviour:
   m_Name: Endurance_2
   m_EditorClassIdentifier: 
   skillName: Endurance II
-  description: Further increases maximum Stamina by 25 points
-  icon: {fileID: 21300000, guid: 69d851ee8c73d084f990b3fca3666dc3, type: 3}
-  cost: 2
+  description: Further increases maximum Stamina by 10 points
+  unlockedIcon: {fileID: 21300000, guid: 2bc1e3fcbc28839499680b2ea255cdbd, type: 3}
+  lockedIcon: {fileID: 21300000, guid: 2bc1e3fcbc28839499680b2ea255cdbd, type: 3}
+  cost: 1
   requiredSkills:
-  - {fileID: 11400000}
+  - {fileID: 11400000, guid: c904cd8bb55d0ba4d8043a37b59d7467, type: 2}
   statToUpgrade: 1
-  upgradeValue: 25
+  upgradeValue: 10

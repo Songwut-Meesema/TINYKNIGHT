@@ -2,10 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.EventSystems; // เพิ่มเข้ามาเพื่อใช้ IPointerEnterHandler, IPointerExitHandler
+using UnityEngine.EventSystems;
 
-// LEAD COMMENT: นี่คือเวอร์ชันอัปเกรดที่ใช้ Event System ของ Unity
-// เพื่อจัดการสถานะ Hover โดยตรง ทำให้โค้ดสะอาดและตอบสนองได้ดีขึ้น
 public class SkillButtonUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     [Header("Data")]
@@ -22,14 +20,18 @@ public class SkillButtonUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     public Color unlockableFrameColor = Color.green;
     public Color lockedColor = Color.gray;
 
-    // [เพิ่มใหม่] ตัวแปรสำหรับเก็บสถานะปัจจุบันของปุ่ม
     private SkillState _currentState;
+    private enum SkillState { Unlocked, Unlockable, Locked }
 
     public void Initialize(Skill_SO skill, SkillTreeManager manager)
     {
         skillData = skill;
         skillTreeManager = manager;
-        iconImage.sprite = skill.icon;
+
+        // --- [อัปเกรด] ---
+        // ตอนเริ่มต้น ให้ใช้ไอคอน "ล็อก" เป็นค่าเริ่มต้นเสมอ
+        iconImage.sprite = skillData.lockedIcon;
+
         button.onClick.AddListener(() => skillTreeManager.UnlockSkill(skillData));
     }
 
@@ -66,53 +68,51 @@ public class SkillButtonUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     private void SetState(SkillState newState)
     {
         _currentState = newState;
-        // ตั้งค่าสีพื้นฐานตามสถานะ
+
+        // --- [อัปเกรดครั้งใหญ่!] ---
+        // LEAD COMMENT: นี่คือตรรกะใหม่ที่ควบคุมทั้ง "Sprite" และ "Color"
+        // ทำให้การแสดงผลของเราชัดเจนและสวยงามยิ่งขึ้น
         switch (_currentState)
         {
             case SkillState.Unlocked:
-                iconImage.color = unlockedColor;
+                iconImage.sprite = skillData.unlockedIcon; // ใช้ Sprite ที่ปลดล็อกแล้ว
+                iconImage.color = unlockedColor;           // ตั้งค่าสีให้สว่างเต็มที่
                 frameImage.color = unlockedColor;
                 button.interactable = false;
                 break;
             case SkillState.Unlockable:
-                iconImage.color = lockedColor;
-                frameImage.color = unlockableFrameColor; // กรอบเป็นสีพิเศษ
+                iconImage.sprite = skillData.lockedIcon;    // ยังคงใช้ Sprite ที่ล็อกอยู่
+                iconImage.color = lockedColor;              // แต่ตั้งค่าสีพื้นฐานเป็นสีเทา
+                frameImage.color = unlockableFrameColor;    // และใช้กรอบสีเขียวเพื่อดึงดูด
                 button.interactable = true;
                 break;
             case SkillState.Locked:
-                iconImage.color = lockedColor;
+                iconImage.sprite = skillData.lockedIcon;    // ใช้ Sprite ที่ล็อกอยู่
+                iconImage.color = lockedColor;              // ตั้งค่าสีเป็นสีเทา
                 frameImage.color = lockedColor;
                 button.interactable = false;
                 break;
         }
     }
 
-    // --- [เพิ่มใหม่] Event Handlers สำหรับ Hover ---
-    // LEAD COMMENT: ฟังก์ชันนี้จะถูกเรียกโดย Event System ของ Unity "โดยอัตโนมัติ"
-    // เมื่อเมาส์เคลื่อนที่เข้ามา "เหนือ" UI Element นี้
     public void OnPointerEnter(PointerEventData eventData)
     {
-        // ถ้าปุ่มอยู่ในสถานะ "พร้อมปลดล็อก" เท่านั้น
         if (_currentState == SkillState.Unlockable)
         {
-            // ให้เปลี่ยนสีไอคอนเป็นสีเต็ม เพื่อส่งสัญญาณว่า "กดฉันสิ!"
-            iconImage.color = unlockedColor;
+            // --- [อัปเกรด] ---
+            // เราจะเปลี่ยน Sprite เป็นเวอร์ชันปลดล็อกชั่วคราว เพื่อพรีวิวให้ผู้เล่นเห็น
+            iconImage.sprite = skillData.unlockedIcon;
+            iconImage.color = unlockedColor; // ทำให้สว่างขึ้น
         }
-        // TODO: เพิ่ม Logic การแสดง Tooltip ที่นี่
     }
 
-    // LEAD COMMENT: ฟังก์ชันนี้จะถูกเรียก "โดยอัตโนมัติ"
-    // เมื่อเมาส์เคลื่อนที่ "ออก" จาก UI Element นี้
     public void OnPointerExit(PointerEventData eventData)
     {
-        // ถ้าปุ่มอยู่ในสถานะ "พร้อมปลดล็อก" เท่านั้น
         if (_currentState == SkillState.Unlockable)
         {
-            // ให้เปลี่ยนสีไอคอนกลับไปเป็นสีเทาเหมือนเดิม
+            // เปลี่ยนกลับไปเป็นสถานะดั้งเดิม
+            iconImage.sprite = skillData.lockedIcon;
             iconImage.color = lockedColor;
         }
-        // TODO: เพิ่ม Logic การซ่อน Tooltip ที่นี่
     }
-
-    private enum SkillState { Unlocked, Unlockable, Locked }
 }

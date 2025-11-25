@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   skillName: Toughness I
   description: Increases maximum Health by 20 points
-  icon: {fileID: 21300000, guid: 52eda9bd49161da4b8418c7aaac08fa9, type: 3}
+  unlockedIcon: {fileID: 21300000, guid: c50a4bb4cac06314aacbe8db1c8c11bb, type: 3}
+  lockedIcon: {fileID: 21300000, guid: c50a4bb4cac06314aacbe8db1c8c11bb, type: 3}
   cost: 1
   requiredSkills: []
   statToUpgrade: 0

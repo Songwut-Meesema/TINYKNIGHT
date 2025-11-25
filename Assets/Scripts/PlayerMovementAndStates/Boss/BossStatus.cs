@@ -1,61 +1,99 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
-// LEAD COMMENT: Script นี้มีโครงสร้างคล้ายกับ PlayerStatus มาก
-// แต่ถูกปรับให้เรียบง่ายขึ้นสำหรับศัตรู และเพิ่มการยิง Event ใหม่ๆ เข้าไป
+[RequireComponent(typeof(AudioSource))]
 public class BossStatus : MonoBehaviour
 {
     [Header("Data Source")]
-    public CharacterStats_SO baseStats; // ลากไฟล์ Minotaur_Stats.asset มาใส่ที่นี่
+    public CharacterStats_SO baseStats;
 
     [Header("Event Channels")]
-    public GameEvent onBossDamaged;  // Event สำหรับอัปเดต Health Bar ของบอส
-    public GameEvent onCameraShake;  // Event สำหรับสั่งให้กล้องสั่น
+    public GameEvent onBossDamaged;
+    public GameEvent onCameraShake;
+
+    [Header("Direct Events")]
+    public UnityEvent OnBossDefeated;
+
+    [Header("Game Feel & Feedback")]
+    public AudioClip hitSound;
+    [Tooltip("Particle Effect ที่จะเล่นเมื่อบอสโดนโจมตี")]
+    public GameObject hitVFX; // ลาก Prefab ของ Particle System มาใส่ที่นี่
 
     private float _currentHealth;
     public float CurrentHealth => _currentHealth;
+    private Animator _animator;
+    private BossAIController _aiController;
+    private AudioSource _audioSource;
+    private bool _isDead = false;
 
-    void Start()
+    void Awake()
     {
+        _animator = GetComponent<Animator>();
+        _aiController = GetComponent<BossAIController>();
+        _audioSource = GetComponent<AudioSource>();
         _currentHealth = baseStats.maxHealth;
     }
 
-    public void TakeDamage(float damage)
+    // --- [อัปเกรด] --- เพิ่มพารามิเตอร์ Vector3 hitPoint
+    public void TakeDamage(float damage, Vector3 hitPoint)
     {
-        if (_currentHealth <= 0) return; // ไม่ทำอะไรถ้าตายไปแล้ว
-
+        if (_isDead) return;
         _currentHealth -= damage;
         _currentHealth = Mathf.Max(_currentHealth, 0);
 
-        Debug.Log("Boss took " + damage + " damage. Current Health: " + _currentHealth);
+        // ส่ง hitPoint ต่อไปให้ TriggerHitFeedback
+        TriggerHitFeedback(hitPoint);
 
-        // --- Event-Driven Communication ---
-        // 1. "ประกาศ" บอก UI ว่าเลือดของฉันเปลี่ยนแล้วนะ!
-        if (onBossDamaged != null)
-        {
-            onBossDamaged.Raise();
-        }
+        if (onBossDamaged != null) onBossDamaged.Raise();
+        if (onCameraShake != null) onCameraShake.Raise();
 
-        // 2. "ประกาศ" บอก Camera Manager ว่า "ฉันเพิ่งโดนตี! ช่วยสั่นกล้องที!"
-        if (onCameraShake != null)
-        {
-            onCameraShake.Raise();
-        }
-        // --- End of Communication ---
+        if (_currentHealth <= 0) Die();
+    }
 
-        if (_currentHealth <= 0)
+    // โอเวอร์โหลดเมธอดเดิมไว้เผื่อกรณีที่เรียกใช้โดยไม่มีตำแหน่ง (Backward Compatibility)
+    public void TakeDamage(float damage)
+    {
+        TakeDamage(damage, transform.position);
+    }
+
+    // --- [อัปเกรด] --- รับ hitPoint เข้ามาเพื่อใช้ในการสร้าง VFX
+    private void TriggerHitFeedback(Vector3 hitPoint)
+    {
+        if (hitSound != null && _audioSource != null) _audioSource.PlayOneShot(hitSound);
+        if (_aiController != null) _aiController.TriggerHitStun();
+
+        // --- [เพิ่มใหม่] --- สร้าง (Instantiate) VFX prefab ขึ้นมาในตำแหน่งที่ปะทะ
+        if (hitVFX != null)
         {
-            Die();
+            Quaternion hitRotation = Quaternion.LookRotation(hitPoint - transform.position);
+            Instantiate(hitVFX, hitPoint, hitRotation);
         }
     }
 
     private void Die()
     {
-        Debug.Log("Boss has been defeated!");
-        // TODO: สั่ง Animator ให้เล่นท่าตาย
-        // GetComponent<Animator>().SetTrigger("Death");
-        // อาจจะปิดการทำงานของ AI Controller
-        // GetComponent<BossAIController>().enabled = false;
+        if (_isDead) return;
+        _isDead = true;
+        Debug.LogWarning("Boss has been defeated!");
+
+        if (_aiController != null) _aiController.enabled = false;
+        if (GetComponent<UnityEngine.AI.NavMeshAgent>() != null)
+        {
+            GetComponent<UnityEngine.AI.NavMeshAgent>().enabled = false;
+        }
+
+        if (_animator != null)
+        {
+            _animator.Play("Death");
+        }
+
+        Invoke(nameof(TriggerVictorySequence), 2f);
+    }
+
+    private void TriggerVictorySequence()
+    {
+        OnBossDefeated.Invoke();
     }
 }

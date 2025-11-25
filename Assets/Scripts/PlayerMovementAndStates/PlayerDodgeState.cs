@@ -9,28 +9,22 @@ public class PlayerDodgeState : IPlayerState
     private float _dodgeSpeed = 8f;
     private float _stateTimer;
     private Vector3 _dodgeDirection;
-
-    // --- [เพิ่มใหม่] ---
     private int _playerLayer;
     private int _enemyLayer;
 
     public PlayerDodgeState(PlayerController playerController)
     {
         _playerController = playerController;
-        // --- [เพิ่มใหม่] ---
-        // แปลงชื่อ Layer เป็นตัวเลข Index เพื่อใช้ในโค้ด
         _playerLayer = LayerMask.NameToLayer("Player");
         _enemyLayer = LayerMask.NameToLayer("Enemy");
     }
 
     public void Enter()
     {
-        // --- [อัปเกรด] ---
-        // LEAD COMMENT: นี่คือหัวใจของการกลิ้งทะลุ!
-        // เราสั่งให้ระบบฟิสิกส์ "เมินเฉย" ต่อการชนกันระหว่าง Layer Player และ Enemy
-        Physics.IgnoreLayerCollision(_playerLayer, _enemyLayer, true);
+        // --- [THE FIX] ---
+        _playerController.PlayerStatus.PlayDodgeSound();
 
-        // TODO: I-frame logic starts here
+        Physics.IgnoreLayerCollision(_playerLayer, _enemyLayer, true);
 
         float staminaCost = _playerController.PlayerStatus.baseStats.dodgeStaminaCost;
         _playerController.PlayerStatus.UseStamina(staminaCost);
@@ -38,7 +32,6 @@ public class PlayerDodgeState : IPlayerState
         _stateTimer = _dodgeDuration;
         _playerController.GetAnimator().SetTrigger(_playerController.DodgeHash);
 
-        // ... (Logic การคำนวณทิศทางเหมือนเดิม) ...
         if (_playerController.MoveInput.sqrMagnitude > 0.01f)
         {
             Vector2 moveInput = _playerController.MoveInput;
@@ -67,15 +60,9 @@ public class PlayerDodgeState : IPlayerState
 
     public void Exit()
     {
-        // --- [อัปเกรด] ---
-        // LEAD COMMENT: สำคัญที่สุด! เมื่อกลิ้งเสร็จ เราต้องสั่งให้ระบบฟิสิกส์
-        // กลับมา "เปิด" การชนกันระหว่าง Player และ Enemy ให้เป็นเหมือนเดิม
         Physics.IgnoreLayerCollision(_playerLayer, _enemyLayer, false);
-
-        // TODO: I-frame logic ends here
     }
 
-    // ... (ฟังก์ชัน Input อื่นๆ เหมือนเดิม) ...
     public void OnJump() { }
     public void OnDash() { }
     public void OnLightAttack() { }

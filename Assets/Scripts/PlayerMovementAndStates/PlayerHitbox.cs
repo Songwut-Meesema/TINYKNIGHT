@@ -4,20 +4,22 @@ using UnityEngine;
 
 public class PlayerHitbox : MonoBehaviour
 {
-    public float damage = 15f;
+    [Tooltip("ดาเมจพื้นฐานของ 'อาวุธ' ชิ้นนี้")]
+    public float baseDamage = 12f;
     private Collider _collider;
-
-    // เราจะใช้ List เพื่อเก็บศัตรูที่โจมตีไปแล้วใน "การเหวี่ยงครั้งเดียว"
-    // เพื่อป้องกันปัญหา Multi-hit ที่สมบูรณ์แบบที่สุด
+    private PlayerStatus _playerStatus;
     private List<Collider> _hitEnemies = new List<Collider>();
 
     void Awake()
     {
         _collider = GetComponent<Collider>();
+        _playerStatus = GetComponentInParent<PlayerStatus>();
+        if (_playerStatus == null)
+        {
+            Debug.LogError("PlayerHitbox cannot find PlayerStatus in parent objects!", this.gameObject);
+        }
     }
 
-    // LEAD COMMENT: OnEnable จะถูกเรียกทุกครั้งที่ SetActive(true)
-    // เราจะใช้มันเพื่อ "รีเซ็ต" รายชื่อศัตรูที่เคยตีไปแล้ว
     void OnEnable()
     {
         _hitEnemies.Clear();
@@ -25,19 +27,26 @@ public class PlayerHitbox : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        // เช็คว่าเคยตีศัตรูตัวนี้ไปแล้วหรือยังในการเหวี่ยงครั้งนี้
-        if (_hitEnemies.Contains(other))
-        {
-            return; // ถ้าเคยตีแล้ว, ไม่ทำอะไร
-        }
+        if (_hitEnemies.Contains(other)) return;
 
-        // เรามองหา BossStatus โดยตรง เพราะในเกมเรามีศัตรูแค่ตัวเดียว
         if (other.TryGetComponent<BossStatus>(out BossStatus bossStatus))
         {
-            Debug.Log("Player hit the Boss!");
-            bossStatus.TakeDamage(damage);
+            float totalDamage = baseDamage;
+            if (_playerStatus != null)
+            {
+                totalDamage += _playerStatus.runtimeStats.attackPower;
+            }
 
-            // เพิ่มศัตรูตัวนี้เข้าไปในลิสต์ เพื่อไม่ให้ตีซ้ำ
+            // --- [อัปเกรด] ---
+            // หา "จุดที่ใกล้ที่สุด" บน Collider ของศัตรู เทียบกับตำแหน่งของ Hitbox ของเรา
+            // เพื่อหาจุดปะทะที่สมจริงที่สุด
+            Vector3 hitPoint = other.ClosestPoint(transform.position);
+
+            Debug.Log("Player hit the Boss! Dealing " + totalDamage + " damage at " + hitPoint);
+
+            // ส่งข้อมูลดาเมจ "และ" ตำแหน่งที่ปะทะไปด้วย
+            bossStatus.TakeDamage(totalDamage, hitPoint);
+
             _hitEnemies.Add(other);
         }
     }

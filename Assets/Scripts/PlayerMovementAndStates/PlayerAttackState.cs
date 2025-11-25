@@ -5,14 +5,10 @@ using UnityEngine;
 public class PlayerAttackState : IPlayerState
 {
     private readonly PlayerController _playerController;
-    
     private float _attackDuration;
     private float _stateTimer;
     private bool _isHeavyAttack;
-
-    // --- [เพิ่มใหม่] ---
-    [Header("Attack Targeting Settings")]
-    private float _attackSearchRadius = 5f; // ระยะสูงสุดที่จะค้นหาศัตรูเพื่อหันไปหา
+    private float _attackSearchRadius = 5f;
     private LayerMask _enemyLayer;
 
     public void SetAttackType(bool isHeavy, float lightAttackAnimTime, float heavyAttackAnimTime)
@@ -24,14 +20,13 @@ public class PlayerAttackState : IPlayerState
     public PlayerAttackState(PlayerController playerController)
     {
         _playerController = playerController;
-        // --- [เพิ่มใหม่] ---
-        _enemyLayer = LayerMask.GetMask("Enemy"); // ดึง Layer "Enemy" มาใช้
+        _enemyLayer = LayerMask.GetMask("Enemy");
     }
 
     public void Enter()
     {
-        // --- [อัปเกรด] ---
-        // LEAD COMMENT: นี่คือ Logic การ "ล็อคเป้าหมาย" ของเรา
+        _playerController.PlayerStatus.PlaySwingSound();
+
         RotateTowardsClosestEnemy();
 
         float staminaCost = _isHeavyAttack ?
@@ -57,33 +52,23 @@ public class PlayerAttackState : IPlayerState
     }
 
     public void Exit() { }
-    
-    // --- [เพิ่มใหม่] ---
+
     private void RotateTowardsClosestEnemy()
     {
-        // 1. ค้นหา Collider ทั้งหมดที่อยู่ใน Layer "Enemy" และอยู่ในรัศมีที่กำหนด
         Collider[] enemies = Physics.OverlapSphere(
             _playerController.transform.position,
             _attackSearchRadius,
             _enemyLayer
         );
 
-        // 2. ถ้าเจอศัตรูอย่างน้อยหนึ่งตัว
         if (enemies.Length > 0)
         {
-            // (ในเกมนี้เรารู้ว่ามีแค่ตัวเดียว เลยเอาตัวแรกได้เลย)
             Transform closestEnemy = enemies[0].transform;
-
-            // 3. คำนวณทิศทางที่จะหันไปหา
             Vector3 directionToEnemy = (closestEnemy.position - _playerController.transform.position).normalized;
-
-            // 4. "วาร์ป" การหมุนของตัวละครให้หันไปหาศัตรูทันทีในเฟรมแรก
             _playerController.transform.rotation = Quaternion.LookRotation(new Vector3(directionToEnemy.x, 0, directionToEnemy.z));
         }
-        // ถ้าไม่เจอศัตรูในระยะ, ก็จะโจมตีไปข้างหน้าที่หันอยู่ตามปกติ
     }
-    
-    // --- Input Handling ---
+
     public void OnJump() { }
     public void OnDash() { }
     public void OnLightAttack() { }

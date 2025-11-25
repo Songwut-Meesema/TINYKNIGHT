@@ -77,7 +77,6 @@ public class InputManager : MonoBehaviour
         _playerController.OnLightAttack(context);
     }
 
-    // ... (ฟังก์ชันตัวกลางอื่นๆ เหมือนเดิม) ...
     private void OnMove(InputAction.CallbackContext context) { _playerController.OnMove(context); }
     private void OnJump(InputAction.CallbackContext context) { _playerController.OnJump(context); }
     private void OnHeavyAttack(InputAction.CallbackContext context) { _playerController.OnHeavyAttack(context); }
