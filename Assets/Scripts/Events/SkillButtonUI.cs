@@ -27,9 +27,7 @@ public class SkillButtonUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     {
         skillData = skill;
         skillTreeManager = manager;
-
         iconImage.sprite = skillData.lockedIcon;
-
         button.onClick.AddListener(() => skillTreeManager.UnlockSkill(skillData));
     }
 
@@ -66,17 +64,26 @@ public class SkillButtonUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     private void SetState(SkillState newState)
     {
         _currentState = newState;
-
+        
         switch (_currentState)
         {
             case SkillState.Unlocked:
+                iconImage.sprite = skillData.unlockedIcon; 
+                iconImage.color = unlockedColor;          
                 frameImage.color = unlockedColor;
                 button.interactable = false;
                 break;
+
             case SkillState.Unlockable:
+                iconImage.sprite = skillData.lockedIcon;    
+                iconImage.color = lockedColor;             
+                frameImage.color = unlockableFrameColor;
                 button.interactable = true;
                 break;
-            case SkillState.Locked:
+
+            case SkillState.Locked:     
+                iconImage.sprite = skillData.lockedIcon;    
+                iconImage.color = lockedColor;              
                 frameImage.color = lockedColor;
                 button.interactable = false;
                 break;
@@ -88,6 +95,7 @@ public class SkillButtonUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         if (_currentState == SkillState.Unlockable)
         {
             iconImage.sprite = skillData.unlockedIcon;
+            iconImage.color = unlockedColor;
         }
     }
 

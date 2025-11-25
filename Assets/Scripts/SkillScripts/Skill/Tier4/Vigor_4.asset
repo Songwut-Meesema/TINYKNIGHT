@@ -17,6 +17,7 @@ MonoBehaviour:
   unlockedIcon: {fileID: 21300000, guid: 8fa290c5629f9e04bb0b4396c684e2b1, type: 3}
   lockedIcon: {fileID: 21300000, guid: 8fa290c5629f9e04bb0b4396c684e2b1, type: 3}
   cost: 2
-  requiredSkills: []
+  requiredSkills:
+  - {fileID: 11400000, guid: f0034aaa45604bb4e80a9bf6eb5853b0, type: 2}
   statToUpgrade: 2
   upgradeValue: 10

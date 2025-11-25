@@ -16,7 +16,7 @@ public class CharacterStats_SO : ScriptableObject
     public float heavyAttackStaminaCost = 25f;
 
     [Header("Combat Stats")]
-    public float attackPower = 0f;
+    public float attackPower = 0.5f;
 
-    public float defense = 0f;
+    public float defense = 0.5f;
 }

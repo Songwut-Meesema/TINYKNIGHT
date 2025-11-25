@@ -13,13 +13,14 @@ public class PlayerStatus : MonoBehaviour
     public GameEvent onHealthChanged;
     public GameEvent onStaminaChanged;
 
-    [Header("SFX")]
-   
+    [Header("Game Sound")]
     public AudioClip hitSound;
     public AudioClip swingSound;
     public AudioClip dodgeSound;
-   
     public AudioClip noStaminaSound;
+    public AudioClip footstepSound;
+    [Range(0f, 1f)]
+    public float footstepVolume = 0.3f;
 
     [HideInInspector]
     public CharacterStats_SO runtimeStats;
@@ -118,19 +119,40 @@ public class PlayerStatus : MonoBehaviour
         GameManager.Instance.EnterUIMode();
     }
 
+    public void PlayFootstepSound()
+    {
+        if (footstepSound != null)
+        {
+            _audioSource.pitch = Random.Range(0.95f, 1.05f);
+            _audioSource.PlayOneShot(footstepSound);
+        }
+    }
+
     public void PlaySwingSound()
     {
-        if (swingSound != null) _audioSource.PlayOneShot(swingSound);
+        if (swingSound != null)
+        {
+            _audioSource.pitch = 1.0f;
+            _audioSource.PlayOneShot(swingSound);
+        }
     }
 
     public void PlayDodgeSound()
     {
-        if (dodgeSound != null) _audioSource.PlayOneShot(dodgeSound);
+        if (dodgeSound != null)
+        {
+            _audioSource.pitch = 1.0f;
+            _audioSource.PlayOneShot(dodgeSound);
+        }
     }
 
     public void PlayNoStaminaSound()
     {
-        if (noStaminaSound != null) _audioSource.PlayOneShot(noStaminaSound);
+        if (noStaminaSound != null)
+        {
+            _audioSource.pitch = 1.0f;
+            _audioSource.PlayOneShot(noStaminaSound);
+        }
     }
 
     #region Stat Upgrades
