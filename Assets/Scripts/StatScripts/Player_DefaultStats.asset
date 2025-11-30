@@ -12,9 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44df9819ba8032943971573e4db3c1e6, type: 3}
   m_Name: Player_DefaultStats
   m_EditorClassIdentifier: 
-  maxHealth: 100
+  maxHealth: 120
   maxStamina: 100
   staminaRegenRate: 10
   dodgeStaminaCost: 15
   lightAttackStaminaCost: 10
   heavyAttackStaminaCost: 25
+  attackPower: 0.5
+  defense: 0.5
