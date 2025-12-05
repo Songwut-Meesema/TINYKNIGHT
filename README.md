@@ -24,7 +24,7 @@ The core philosophy of this project is **Separation of Concerns**. Instead of mo
 
 This is the foundational pillar of the project's flexibility.
 
-*   **What it is:** We separate the "data" (e.g., how much health a character has) from the "behavior" (e.g., the code that makes a character take damage).
+*   **What it is:** I separate the "data" (e.g., how much health a character has) from the "behavior" (e.g., the code that makes a character take damage).
 *   **How it's used:** `CharacterStats_SO` and `Skill_SO` act as "data blueprints." They are asset files that hold all the configurable variables for characters and skills.
 
 
